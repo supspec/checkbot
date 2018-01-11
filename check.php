@@ -48,7 +48,7 @@ function getPoloniexMarkets(){
 		if(!$v->isFrozen && $keys[0] == 'BTC' && isset($coins[$keys[1]]) ){
 			$result[$keys[1]]['market'] = $k;
 			$result[$keys[1]]['txFee'] = $coins[$keys[1]];
-			$result[$keys[1]]['last'] = $v->last;
+			$result[$keys[1]]['last'] = (float)$v->last;
 			$result[$keys[1]]['volume'] = $v->baseVolume;
 			$result[$keys[1]]['spred'] = $v->percentChange;
 		}
@@ -67,7 +67,7 @@ function getBittrexMarkets(){
 		if($name[0] == 'BTC' && isset($coins[$name[1]])){
 			$result[$name[1]]['market'] = $market->MarketName;
 			$result[$name[1]]['txFee'] = $coins[$name[1]];
-			$result[$name[1]]['last'] = $market->Last;
+			$result[$name[1]]['last'] = (float)$market->Last;
 			$result[$name[1]]['volume'] = $market->BaseVolume;
 			//$result[$name[1]]['spred'] = $v->percentChange;
 		}
@@ -77,7 +77,27 @@ function getBittrexMarkets(){
 	
 }
 
+$bittrexInfo = getBittrexMarkets();
+$polniexInfo = getPoloniexMarkets();
 
-var_dump(getBittrexMarkets());
+
+function Bittrex2Poloniex(){
+	global $bittrexInfo, $polniexInfo;
+
+	foreach($bittrexInfo as $k=>$v){
+		if(isset($polniexInfo[$k])){
+			if($polniexInfo[$k]['last'] > $bittrexInfo[$k]['last']){
+				$p = round(100*($polniexInfo[$k]['last'] - $bittrexInfo[$k]['last'])/$polniexInfo[$k]['last'], 2);
+				if($p > 1)
+					echo "$k " . $polniexInfo[$k]['last'] . " > " . $bittrexInfo[$k]['last'] . " $p% \n";
+			}
+		
+		}
+	}
+}
+
+
+Bittrex2Poloniex();
+//var_dump(getBittrexMarkets());
 
 //var_dump(getBittrexCoins());
